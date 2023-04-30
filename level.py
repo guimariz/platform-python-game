@@ -1,20 +1,66 @@
 import pygame
-from tiles import Tile
+from tiles import Tile, StaticTile, Crate
 from settings import tile_size, screen_width
 from player import Player
 from particles import ParticleEffect
+from support import import_csv_layout, import_cut_graphics
+import numpy as np
 
 class Level:
   def __init__(self, level_data, surface):
-    # level setup
+    # general setup
     self.display_surface = surface
     self.setup_level(level_data)
-    self.world_shift = 0
+    self.world_shift = -5
     self.current_x = 0
+
+    # terrain setup
+    terrain_layout = import_csv_layout(level_data['terrain'])
+    self.terrain_sprites = self.create_tile_group(terrain_layout, 'terrain')
+
+    # grass setup
+    grass_layout = import_csv_layout(level_data['grass'])
+    self.grass_sprites = self.create_tile_group(grass_layout, 'grass')
+   
+    # crates
+    crate_layout = import_csv_layout(level_data['crates'])
+    self.crate_sprites = self.create_tile_group(crate_layout, 'crates')
 
     # dust
     self.dust_sprite = pygame.sprite.GroupSingle()
     self.player_on_ground = False
+
+  def create_tile_group(self, layout, type):
+    sprite_group = pygame.sprite.Group()
+
+
+
+    for row_index, row in enumerate(layout):
+      for col_index, val in enumerate(row):
+        if val != '-1':
+          x = col_index * tile_size
+          y = row_index * tile_size
+
+
+          if type == 'terrain':
+            terrain_tile_list = import_cut_graphics('./assets/graphics/terrain/terrain_tiles.png')
+            tile_surface = terrain_tile_list[int(val)]
+            print('tamanho da lista', len(terrain_tile_list))
+            # print('x, y', x, y)
+            # print('val', val)
+            sprite = StaticTile((x,y), tile_size, tile_surface)
+          if type == 'grass':
+            grass_tile_list = import_cut_graphics('./assets/graphics/decoration/grass/grass.png')
+            tile_surface = grass_tile_list[0]
+            sprite = StaticTile((x, y), tile_size, tile_surface)
+          if type == 'crates':
+            crate_tile_list = import_cut_graphics('./assets/graphics/terrain/crate.png')
+            create_surface = crate_tile_list[0]
+            sprite = Crate((x, y), tile_size, create_surface)
+
+          sprite_group.add(sprite)
+          
+    return sprite_group
 
   def create_jump_particles(self, pos):
     if self.player.sprite.facing_right:
@@ -115,19 +161,30 @@ class Level:
 
   def run(self):
     #dust particles
-    self.dust_sprite.update(self.world_shift)
-    self.dust_sprite.draw(self.display_surface)
+    # self.dust_sprite.update(self.world_shift)
+    # self.dust_sprite.draw(self.display_surface)
 
     # level tiles
-    self.tiles.update(self.world_shift)
-    self.tiles.draw(self.display_surface)
-    self.scroll_x()
+    # self.tiles.update(self.world_shift)
+    # self.tiles.draw(self.display_surface)
+    # self.scroll_x()
     
+    # terrain
+    self.terrain_sprites.draw(self.display_surface)
+    self.terrain_sprites.update(self.world_shift)
+
+    # grass
+    # self.grass_sprites.draw(self.display_surface)
+    # self.grass_sprites.update(self.world_shift)
+
+    # crate
+    self.crate_sprites.draw(self.display_surface)
+    self.crate_sprites.update(self.world_shift)
 
     # player
-    self.player.update()
-    self.horizontal_movement_collision()
-    self.get_player_on_ground()
-    self.vertical_movement_collision()
-    self.create_landing_dust()
-    self.player.draw(self.display_surface)
+    # self.player.update()
+    # self.horizontal_movement_collision()
+    # self.get_player_on_ground()
+    # self.vertical_movement_collision()
+    # self.create_landing_dust()
+    # self.player.draw(self.display_surface)

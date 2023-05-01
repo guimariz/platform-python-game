@@ -1,6 +1,7 @@
 import pygame
 from tiles import Tile, StaticTile, Crate, Coin, Palm
-from settings import tile_size, screen_width
+from decoration import Sky, Water, Cloud
+from settings import tile_size, screen_width, screen_height
 from player import Player
 from enemy import Enemy
 from particles import ParticleEffect
@@ -11,14 +12,18 @@ class Level:
     # general setup
     self.display_surface = surface
     # self.setup_level(level_data)
-    self.world_shift = -6
-    # self.current_x = 0
+    self.world_shift = 0
+    self.current_x = None
 
     # player
     player_layout = import_csv_layout(level_data['player'])
     self.player = pygame.sprite.GroupSingle()
     self.goal = pygame.sprite.GroupSingle()
     self.player_setup(player_layout)
+    
+    # dust
+    self.dust_sprite = pygame.sprite.GroupSingle()
+    self.player_on_ground = False
 
     # terrain setup
     terrain_layout = import_csv_layout(level_data['terrain'])
@@ -53,14 +58,10 @@ class Level:
     self.constraint_sprites = self.create_tile_group(constraint_layout,'constraints')
 
 		# decoration 
-    # self.sky = Sky(8)
-    # level_width = len(terrain_layout[0]) * tile_size
-    # self.water = Water(screen_height - 20,level_width)
-    # self.clouds = Clouds(400,level_width,30)
-
-    # dust
-    # self.dust_sprite = pygame.sprite.GroupSingle()
-    # self.player_on_ground = False
+    self.sky = Sky(8)
+    level_width = len(terrain_layout[0]) * tile_size
+    self.water = Water(screen_height - 20, level_width)
+    self.cloud = Cloud(400, level_width, 30)
 
   def create_tile_group(self, layout, type):
     sprite_group = pygame.sprite.Group()
@@ -115,8 +116,8 @@ class Level:
         y = row_index * tile_size
 
         if val == '0':
-          tile = Tile(x, y, tile_size)
-          self.tiles.add(tile)
+          sprite = Player((x, y), self.display_surface, self.create_jump_particles)
+          self.player.add(sprite)
         if val == '1':
           hat_surface = pygame.image.load('../assets/graphics/character/hat.png').convert_alpha()
           sprite = StaticTile(x, y, tile_size, hat_surface)
@@ -170,8 +171,9 @@ class Level:
   def horizontal_movement_collision(self):
     player = self.player.sprite
     player.rect.x += player.direction.x * player.speed
+    collidable_sprites = self.terrain_sprites.sprites() + self.crate_sprites.sprites() + self.fg_palm_sprites.sprites()
 
-    for sprite in self.tiles.sprites():
+    for sprite in collidable_sprites:
       if sprite.rect.colliderect(player.rect):
         if player.direction.x < 0:
           player.rect.left = sprite.rect.right
@@ -190,8 +192,9 @@ class Level:
   def vertical_movement_collision(self):
     player = self.player.sprite
     player.apply_gravity()
+    collidable_sprites = self.terrain_sprites.sprites() + self.crate_sprites.sprites() + self.fg_palm_sprites.sprites()
 
-    for sprite in self.tiles.sprites():
+    for sprite in collidable_sprites:
       if sprite.rect.colliderect(player.rect):
         if player.direction.y > 0:
           player.rect.bottom = sprite.rect.top
@@ -209,6 +212,12 @@ class Level:
         player.on_ceiling = False
 
   def run(self):
+
+    # decoration
+    self.sky.draw(self.display_surface)
+    self.water.draw(self.display_surface, self.world_shift)
+    self.cloud.draw(self.display_surface, self.world_shift)
+
      # background palms
     self.bg_palm_sprites.update(self.world_shift)
     self.bg_palm_sprites.draw(self.display_surface)
@@ -239,24 +248,23 @@ class Level:
     self.fg_palm_sprites.update(self.world_shift)
     self.fg_palm_sprites.draw(self.display_surface)
 
+    # dust particles
+    self.dust_sprite.update(self.world_shift)
+    self.dust_sprite.draw(self.display_surface)
+
     # player sprites
+    self.player.update()
+    self.horizontal_movement_collision()
+    self.get_player_on_ground()
+    self.vertical_movement_collision()
+    self.create_landing_dust()
+    self.player.draw(self.display_surface)
+
+    # hat sprites
     self.goal.update(self.world_shift)
     self.goal.draw(self.display_surface)
 
-    # dust particles
-    # self.dust_sprite.update(self.world_shift)
-    # self.dust_sprite.draw(self.display_surface)
-
     # level tiles
-    # self.tiles.update(self.world_shift)
-    # self.tiles.draw(self.display_surface)
-    # self.scroll_x()
-
-
-    # player
-    # self.player.update()
-    # self.horizontal_movement_collision()
-    # self.get_player_on_ground()
-    # self.vertical_movement_collision()
-    # self.create_landing_dust()
-    # self.player.draw(self.display_surface)
+    self.tiles.update(self.world_shift)
+    self.tiles.draw(self.display_surface)
+    self.scroll_x()

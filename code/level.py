@@ -1,7 +1,8 @@
 import pygame
-from tiles import Tile, StaticTile, Crate, AnimatedTile
+from tiles import Tile, StaticTile, Crate, Coin, Palm
 from settings import tile_size, screen_width
 from player import Player
+from enemy import Enemy
 from particles import ParticleEffect
 from support import import_csv_layout, import_cut_graphics
 
@@ -29,9 +30,31 @@ class Level:
     coin_layout = import_csv_layout(level_data['coins'])
     self.coin_sprites = self.create_tile_group(coin_layout, 'coins')
 
+    # foreground palms 
+    fg_palm_layout = import_csv_layout(level_data['fg_palms'])
+    self.fg_palm_sprites = self.create_tile_group(fg_palm_layout,'fg_palms')
+
+		# background palms
+    bg_palm_layout = import_csv_layout(level_data['bg_palms'])
+    self.bg_palm_sprites = self.create_tile_group(bg_palm_layout,'bg_palms')
+
+		# enemy 
+    enemy_layout = import_csv_layout(level_data['enemies'])
+    self.enemy_sprites = self.create_tile_group(enemy_layout,'enemies')
+
+		# constraint 
+    # constraint_layout = import_csv_layout(level_data['constraints'])
+    # self.constraint_sprites = self.create_tile_group(constraint_layout,'constraint')
+
+		# decoration 
+    # self.sky = Sky(8)
+    # level_width = len(terrain_layout[0]) * tile_size
+    # self.water = Water(screen_height - 20,level_width)
+    # self.clouds = Clouds(400,level_width,30)
+
     # dust
-    self.dust_sprite = pygame.sprite.GroupSingle()
-    self.player_on_ground = False
+    # self.dust_sprite = pygame.sprite.GroupSingle()
+    # self.player_on_ground = False
 
   def create_tile_group(self, layout, type):
     sprite_group = pygame.sprite.Group()
@@ -56,7 +79,21 @@ class Level:
             sprite = Crate(x, y, tile_size)
 
           if type == 'coins':
-            sprite = AnimatedTile(x, y, tile_size, '../assets/graphics/coin/gold')
+            if val == '0' : sprite = Coin(x, y, tile_size, '../assets/graphics/coins/gold')
+            if val == '1' : sprite = Coin(x, y, tile_size, '../assets/graphics/coins/silver')
+
+          if type == 'fg_palms':
+            if val == '0': sprite = Palm(tile_size,x,y,'../assets/graphics/terrain/palm_small', 38)
+            if val == '1': sprite = Palm(tile_size,x,y,'../assets/graphics/terrain/palm_large', 64)
+
+          if type == 'bg_palms':
+            sprite = Palm(tile_size,x,y,'../assets/graphics/terrain/palm_bg',64)
+          
+          if type == 'enemies':
+            sprite = Enemy(tile_size,x,y)
+
+          # if type == 'constraint':
+          #   sprite = Tile(tile_size,x,y)
 
           sprite_group.add(sprite)
           
@@ -160,22 +197,30 @@ class Level:
         player.on_ceiling = False
 
   def run(self):
+     # background palms
+    self.bg_palm_sprites.update(self.world_shift)
+    self.bg_palm_sprites.draw(self.display_surface)
+
     # terrain
     self.terrain_sprites.update(self.world_shift)
     self.terrain_sprites.draw(self.display_surface)
 
+    # crate
+    self.crate_sprites.update(self.world_shift)
+    self.crate_sprites.draw(self.display_surface)
+   
     # grass
     self.grass_sprites.update(self.world_shift)
     self.grass_sprites.draw(self.display_surface)
 
-    # crate
-    self.crate_sprites.update(self.world_shift)
-    self.crate_sprites.draw(self.display_surface)
-
     # coin
     self.coin_sprites.update(self.world_shift)
     self.coin_sprites.draw(self.display_surface)
-     
+
+    # foreground palms
+    self.fg_palm_sprites.update(self.world_shift)
+    self.fg_palm_sprites.draw(self.display_surface)
+
     # dust particles
     # self.dust_sprite.update(self.world_shift)
     # self.dust_sprite.draw(self.display_surface)

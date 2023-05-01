@@ -16,8 +16,6 @@ def import_cut_graphics(path):
   tile_num_x = int(surface.get_size()[0] / tile_size)
   tile_num_y = int(surface.get_size()[1] / tile_size)
 
-  print(pygame.Surface.get_alpha)
-
   cut_tiles = []
 
   for row in range(tile_num_y):
@@ -31,12 +29,14 @@ def import_cut_graphics(path):
   return cut_tiles
 
 def import_folder(path):
-  surface_list = []
+  for information in walk(path):
+    print(information)
+  # surface_list = []
 
-  for _, __, img_files in walk(path):
-    for image in img_files:
-      full_path = path + '/' + image
-      image_surface = pygame.image.load(full_path).convert_alpha()
-      surface_list.append(image_surface)
+  # for _, __, img_files in walk(path):
+  #   for image in img_files:
+  #     full_path = path + '/' + image
+  #     image_surface = pygame.image.load(full_path).convert_alpha()
+  #     surface_list.append(image_surface)
 
-  return surface_list
+  # return surface_list

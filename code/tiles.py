@@ -22,6 +22,18 @@ class Crate(StaticTile):
     self.rect = self.image.get_rect(bottomleft = (x, offset_y))
 
 class AnimatedTile(Tile):
-  def __init__(self, x, y, size, path):
-    super().__init__(x, y, size)
-    self.frames = import_folder(path)
+	def __init__(self, x, y, size, path):
+		super().__init__(x, y, size)
+		self.frames = import_folder(path)
+		self.frame_index = 0
+		self.image = self.frames[self.frame_index]
+
+	def animate(self):
+		self.frame_index += 0.15
+		if self.frame_index >= len(self.frames):
+			self.frame_index = 0
+		self.image = self.frames[int(self.frame_index)]
+
+	def update(self,shift):
+		self.animate()
+		self.rect.x += shift

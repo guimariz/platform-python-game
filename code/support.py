@@ -29,14 +29,14 @@ def import_cut_graphics(path):
   return cut_tiles
 
 def import_folder(path):
-  for information in walk(path):
-    print(information)
-  # surface_list = []
+  surface_list = []
 
-  # for _, __, img_files in walk(path):
-  #   for image in img_files:
-  #     full_path = path + '/' + image
-  #     image_surface = pygame.image.load(full_path).convert_alpha()
-  #     surface_list.append(image_surface)
-
-  # return surface_list
+  for _, __, image_files in walk(path):
+    print('foi')
+    for image in image_files:
+      print('foi')
+      full_path = path + '/' + image
+      image_surface = pygame.image.load(full_path).convert_alpha()
+      surface_list.append(image_surface)
+      
+  return surface_list

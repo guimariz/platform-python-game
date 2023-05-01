@@ -10,8 +10,8 @@ class Level:
     # general setup
     self.display_surface = surface
     # self.setup_level(level_data)
-    self.world_shift = -5
-    self.current_x = 0
+    self.world_shift = 0
+    # self.current_x = 0
 
     # terrain setup
     terrain_layout = import_csv_layout(level_data['terrain'])
@@ -28,7 +28,6 @@ class Level:
     # coins
     coin_layout = import_csv_layout(level_data['coins'])
     self.coin_sprites = self.create_tile_group(coin_layout, 'coins')
-
 
     # dust
     self.dust_sprite = pygame.sprite.GroupSingle()
@@ -50,12 +49,7 @@ class Level:
             
           if type == 'grass':
             grass_tile_list = import_cut_graphics('../assets/graphics/decoration/grass/grass.png')
-            try:
-              tile_surface = grass_tile_list[int(val)]
-            except IndexError:
-              [grass_tile_list.append('-1') for i in range(int(val) - len(grass_tile_list) + 1)]
-              tile_surface = grass_tile_list[int(val)]
-
+            tile_surface = grass_tile_list[int(val)]
             sprite = StaticTile(x, y, tile_size, tile_surface)
 
           if type == 'crates':
@@ -175,12 +169,12 @@ class Level:
     self.grass_sprites.draw(self.display_surface)
 
     # crate
-    # self.crate_sprites.update(self.world_shift)
-    # self.crate_sprites.draw(self.display_surface)
+    self.crate_sprites.update(self.world_shift)
+    self.crate_sprites.draw(self.display_surface)
 
     # coin
-    # self.coin_sprites.update(self.world_shift)
-    # self.coin_sprites.draw(self.display_surface)
+    self.coin_sprites.update(self.world_shift)
+    self.coin_sprites.draw(self.display_surface)
      
     # dust particles
     # self.dust_sprite.update(self.world_shift)

@@ -9,32 +9,7 @@ from support import import_csv_layout, import_cut_graphics
 from game_data import levels
 
 class Level:
-  def __init__(self, current_level, surface, create_overworld):
-
-    # level setup
-
-
-    # level display
-    self.font = pygame.font.Font(None, 40)
-    self.text_surf = self.font.render(level_content, True, 'White')
-    self.text_rect = self.text_surf.get_rect(center = (screen_width / 2, screen_height / 2))
-
-  def input(self):
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_RETURN]:
-      self.create_overworld(self.current_level, self.new_max_level)
-    if keys[pygame.K_ESCAPE]:
-      self.create_overworld(self.current_level, 0)
-    
-
-
-  def run(self):
-    self.input()
-    self.display_surface.blit(self.text_surf, self.text_rect)
-
-
-class Level:
-  def __init__(self, current_level, surface, create_overworld):
+  def __init__(self, current_level, surface, create_overworld, change_coins):
     # general setup
     self.display_surface = surface
     self.world_shift = 0
@@ -52,6 +27,9 @@ class Level:
     self.player = pygame.sprite.GroupSingle()
     self.goal = pygame.sprite.GroupSingle()
     self.player_setup(player_layout)
+
+    # user interface
+    self.change_coins = change_coins
     
     # dust
     self.dust_sprite = pygame.sprite.GroupSingle()
@@ -118,8 +96,8 @@ class Level:
             sprite = Crate(x, y, tile_size)
 
           if type == 'coins':
-            if val == '0' : sprite = Coin(x, y, tile_size, '../assets/graphics/coins/gold')
-            if val == '1' : sprite = Coin(x, y, tile_size, '../assets/graphics/coins/silver')
+            if val == '0' : sprite = Coin(x, y, tile_size, '../assets/graphics/coins/gold', 5)
+            if val == '1' : sprite = Coin(x, y, tile_size, '../assets/graphics/coins/silver', 1)
 
           if type == 'fg_palms':
             if val == '0': sprite = Palm(tile_size,x,y,'../assets/graphics/terrain/palm_small', 38)
@@ -251,11 +229,17 @@ class Level:
     if pygame.sprite.spritecollide(self.player.sprite, self.goal, False):
       self.create_overworld(self.current_level, self.new_max_level)
 
+  def check_coin_collisions(self):
+    collided_coins = pygame.sprite.spritecollide(self.player.sprite, self.coin_sprites, True)
+    if collided_coins:
+      for coin in collided_coins:
+        self.change_coins(coin.value)
+
+
   def run(self):
 
     # decoration
     self.sky.draw(self.display_surface)
-    self.water.draw(self.display_surface, self.world_shift)
     self.cloud.draw(self.display_surface, self.world_shift)
 
      # background palms
@@ -312,3 +296,8 @@ class Level:
 
     self.check_death()
     self.check_win()
+
+    self.check_coin_collisions()
+
+    # water
+    self.water.draw(self.display_surface, self.world_shift)

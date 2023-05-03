@@ -17,15 +17,18 @@ class UI:
     self.coin_rect = self.coin.get_rect(topleft = (50, 61))
     self.font = pygame.font.Font('../assets/graphics/ui/ARCADEPI.ttf', 30)
 
-  def show_health(self, current, full):
+  def show_health(self, full, current):
     self.display_surface.blit(self.health_bar, (20, 10))
-    current_health_ratio = current / full
-    current_bar_width = self.bar_max_width * current_health_ratio
-    health_bar_Rect = pygame.Rect(self.health_bar_topleft, (current_bar_width, self.bar_height))
-    pygame.draw.rect(self.display_surface, '#dc4949', health_bar_Rect)
+    if current > 0:
+      current_health_ratio = current / full
+      current_bar_width = self.bar_max_width * current_health_ratio
+      health_bar_Rect = pygame.Rect(self.health_bar_topleft, (current_bar_width, self.bar_height))
+      pygame.draw.rect(self.display_surface, '#dc4949', health_bar_Rect)
+    else:
+      print('morreu')
 
 
-  def show_coins( self, amount):
+  def show_coins(self, amount):
     self.display_surface.blit(self.coin, self.coin_rect)
     coin_amount_surface = self.font.render(str(amount), False, '#33323d')
     coin_amount_rect = coin_amount_surface.get_rect(midleft = (self.coin_rect.right + 4, self.coin_rect.centery))

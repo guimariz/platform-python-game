@@ -6,14 +6,46 @@ from player import Player
 from enemy import Enemy
 from particles import ParticleEffect
 from support import import_csv_layout, import_cut_graphics
+from game_data import levels
 
 class Level:
-  def __init__(self, level_data, surface):
+  def __init__(self, current_level, surface, create_overworld):
+
+    # level setup
+
+
+    # level display
+    self.font = pygame.font.Font(None, 40)
+    self.text_surf = self.font.render(level_content, True, 'White')
+    self.text_rect = self.text_surf.get_rect(center = (screen_width / 2, screen_height / 2))
+
+  def input(self):
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_RETURN]:
+      self.create_overworld(self.current_level, self.new_max_level)
+    if keys[pygame.K_ESCAPE]:
+      self.create_overworld(self.current_level, 0)
+    
+
+
+  def run(self):
+    self.input()
+    self.display_surface.blit(self.text_surf, self.text_rect)
+
+
+class Level:
+  def __init__(self, current_level, surface, create_overworld):
     # general setup
     self.display_surface = surface
-    # self.setup_level(level_data)
     self.world_shift = 0
     self.current_x = None
+
+    # overworld connection
+    self.create_overworld = create_overworld
+    self.current_level = current_level
+    level_data = levels[current_level]
+    # level_content = level_data['content']
+    self.new_max_level = level_data['unlock']
 
     # player
     player_layout = import_csv_layout(level_data['player'])

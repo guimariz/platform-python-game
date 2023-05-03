@@ -236,6 +236,10 @@ class Level:
     self.crate_sprites.update(self.world_shift)
     self.crate_sprites.draw(self.display_surface)
 
+    # foreground palms
+    self.fg_palm_sprites.update(self.world_shift)
+    self.fg_palm_sprites.draw(self.display_surface)
+
     # grass
     self.grass_sprites.update(self.world_shift)
     self.grass_sprites.draw(self.display_surface)
@@ -244,9 +248,6 @@ class Level:
     self.coin_sprites.update(self.world_shift)
     self.coin_sprites.draw(self.display_surface)
 
-    # foreground palms
-    self.fg_palm_sprites.update(self.world_shift)
-    self.fg_palm_sprites.draw(self.display_surface)
 
     # dust particles
     self.dust_sprite.update(self.world_shift)

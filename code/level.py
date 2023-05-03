@@ -243,6 +243,14 @@ class Level:
       if player.on_ceiling and player.direction.y > 0:
         player.on_ceiling = False
 
+  def check_death(self):
+    if self.player.sprite.rect.top > screen_height:
+      self.create_overworld(self.current_level, 0)
+
+  def check_win(self):
+    if pygame.sprite.spritecollide(self.player.sprite, self.goal, False):
+      self.create_overworld(self.current_level, self.new_max_level)
+
   def run(self):
 
     # decoration
@@ -301,3 +309,6 @@ class Level:
     self.tiles.update(self.world_shift)
     self.tiles.draw(self.display_surface)
     self.scroll_x()
+
+    self.check_death()
+    self.check_win()

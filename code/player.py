@@ -1,5 +1,6 @@
 import pygame
 from support import import_folder
+from settings import master_volume
 from math import sin
 
 class Player(pygame.sprite.Sprite):
@@ -42,9 +43,9 @@ class Player(pygame.sprite.Sprite):
 
     # audio
     self.jump_sound = pygame.mixer.Sound('../assets/audio/effects/jump.wav')
-    self.jump_sound.set_volume(0.2)
+    self.jump_sound.set_volume(master_volume)
     self.hit_sound = pygame.mixer.Sound('../assets/audio/effects/hit.wav')
-    self.hit_sound.set_volume(0.2)
+    self.hit_sound.set_volume(master_volume)
 
   def import_character_assets(self):
     character_path = '../assets/graphics/character/'
@@ -136,7 +137,7 @@ class Player(pygame.sprite.Sprite):
   def get_damage(self):
     if not self.invincible:
       self.hit_sound.play()
-      self.change_health(10)
+      self.change_health(-20)
       self.invincible = True
       self.hurt_time = pygame.time.get_ticks()
 

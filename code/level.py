@@ -1,7 +1,7 @@
 import pygame
 from tiles import Tile, StaticTile, Crate, Coin, Palm
 from decoration import Sky, Water, Cloud
-from settings import tile_size, screen_width, screen_height
+from settings import tile_size, screen_width, screen_height, master_volume
 from player import Player
 from enemy import Enemy
 from particles import ParticleEffect
@@ -10,6 +10,7 @@ from game_data import levels
 
 class Level:
   def __init__(self, current_level, surface, create_overworld, change_coins, change_health):
+  
     # general setup
     self.display_surface = surface
     self.world_shift = 0
@@ -17,15 +18,14 @@ class Level:
 
     # audio
     self.coin_sound = pygame.mixer.Sound('../assets/audio/effects/coin.wav')
-    self.coin_sound.set_volume(0.2)
+    self.coin_sound.set_volume(master_volume)
     self.stomp_sound = pygame.mixer.Sound('../assets/audio/effects/stomp.wav')
-    self.stomp_sound.set_volume(0.2)
+    self.stomp_sound.set_volume(master_volume)
 
     # overworld connection
     self.create_overworld = create_overworld
     self.current_level = current_level
-    level_data = levels[current_level]
-    # level_content = level_data['content']
+    level_data = levels[self.current_level]
     self.new_max_level = level_data['unlock']
 
     # player
@@ -109,8 +109,8 @@ class Level:
             if val == '1' : sprite = Coin(x, y, tile_size, '../assets/graphics/coins/silver', 1)
 
           if type == 'fg_palms':
-            if val == '0': sprite = Palm(tile_size,x,y,'../assets/graphics/terrain/palm_small', 38)
-            if val == '1': sprite = Palm(tile_size,x,y,'../assets/graphics/terrain/palm_large', 64)
+            if val == '0': sprite = Palm(x, y, tile_size, '../assets/graphics/terrain/palm_small', 38)
+            if val == '1': sprite = Palm(x, y, tile_size, '../assets/graphics/terrain/palm_large', 64)
 
           if type == 'bg_palms':
             sprite = Palm(x, y, tile_size, '../assets/graphics/terrain/palm_bg',64)
@@ -119,16 +119,13 @@ class Level:
             sprite = Enemy(x, y, tile_size)
 
           if type == 'constraints': 
-            sprite = Tile(tile_size,x,y)
+            sprite = Tile(x, y, tile_size)
 
           sprite_group.add(sprite)
           
     return sprite_group
 
   def player_setup(self, layout, change_health):
-    self.tiles = pygame.sprite.Group()
-    self.player = pygame.sprite.GroupSingle()
-
     for row_index, row in enumerate(layout):
       for col_index, val in enumerate(row):
         x = col_index * tile_size
@@ -256,6 +253,7 @@ class Level:
 
 
   def run(self):
+    # run the entire game / level
 
     # decoration
     self.sky.draw(self.display_surface)
@@ -285,10 +283,6 @@ class Level:
     self.crate_sprites.update(self.world_shift)
     self.crate_sprites.draw(self.display_surface)
 
-    # foreground palms
-    self.fg_palm_sprites.update(self.world_shift)
-    self.fg_palm_sprites.draw(self.display_surface)
-
     # grass
     self.grass_sprites.update(self.world_shift)
     self.grass_sprites.draw(self.display_surface)
@@ -297,22 +291,24 @@ class Level:
     self.coin_sprites.update(self.world_shift)
     self.coin_sprites.draw(self.display_surface)
 
+    # foreground palms
+    self.fg_palm_sprites.update(self.world_shift)
+    self.fg_palm_sprites.draw(self.display_surface)
+
     # player sprites
     self.player.update()
     self.horizontal_movement_collision()
+
     self.get_player_on_ground()
     self.vertical_movement_collision()
     self.create_landing_dust()
-    self.player.draw(self.display_surface)
+
+    self.scroll_x()
+    self.player.draw(self.display_surface)    
 
     # hat sprites
     self.goal.update(self.world_shift)
     self.goal.draw(self.display_surface)
-
-    # level tiles
-    self.tiles.update(self.world_shift)
-    self.tiles.draw(self.display_surface)
-    self.scroll_x()
 
     self.check_death()
     self.check_win()

@@ -16,9 +16,9 @@ class Game:
 
     # audio
     self.level_bg_music = pygame.mixer.Sound('../assets/audio/level_music.wav')
-    self.level_bg_music.set_volume(0.2)
+    self.level_bg_music.set_volume(master_volume)
     self.overworld_bg_music = pygame.mixer.Sound('../assets/audio/overworld_music.wav')
-    self.overworld_bg_music.set_volume(0.2)
+    self.overworld_bg_music.set_volume(master_volume)
 
     # overworld creation
     self.overworld = Overworld(0, self.max_level, screen, self.create_level)
@@ -34,7 +34,7 @@ class Game:
     self.overworld_bg_music.stop()
     self.level_bg_music.play(loops = -1)
 
-  def create_overworld(self, current_level, new_max_level):
+  def create_overworld(self, current_level, new_max_level):  
     if new_max_level > self.max_level:
       self.max_level = new_max_level
     self.overworld = Overworld(current_level, self.max_level, screen, self.create_level)
@@ -46,6 +46,7 @@ class Game:
     self.coins += amount
 
   def change_health(self, amount):
+    print('life: ', self.current_health)
     self.current_health += amount
 
   def check_game_over(self):
@@ -55,7 +56,7 @@ class Game:
       self.max_level = 0
       self.overworld = Overworld(0, self.max_level, screen, self.create_level)
       self.status = 'overworld'
-      self.overworld_bg_music.play(loops == -1)
+      self.overworld_bg_music.play(loops = -1)
 
   def run(self):
     if self.status == 'overworld':

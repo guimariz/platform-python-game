@@ -21,7 +21,7 @@ class UI:
     self.display_surface.blit(self.health_bar, (20, 10))
     current_health_ratio = current / full
     current_bar_width = self.bar_max_width * current_health_ratio
-    health_bar_Rect = pygame.Rect((self.health_bar_topleft), (current_bar_width, self.bar_height))
+    health_bar_Rect = pygame.Rect(self.health_bar_topleft, (current_bar_width, self.bar_height))
     pygame.draw.rect(self.display_surface, '#dc4949', health_bar_Rect)
 
 

@@ -46,7 +46,6 @@ class Game:
     self.coins += amount
 
   def change_health(self, amount):
-    print('life: ', self.current_health)
     self.current_health += amount
 
   def check_game_over(self):
